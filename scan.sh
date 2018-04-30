@@ -8,6 +8,8 @@
 # Convert the document to pdf                                                                                        #
 # Convert the document to txt using ocr                                                                              #
 #                                                                                                                    #
+# The OCR is done in the background, so that you can scan the next page at the same time                             #
+#                                                                                                                    #
 ######################################################################################################################
 
 continue="y"
@@ -28,16 +30,23 @@ do
    echo Scanning page $pages...
    scanimage -x 210 -y 297 --mode Color --resolution 300 --format png > $in
    echo "Please put the next page on the scanner"
-   echo Converting to TXT...
-   tesseract $in $out -l deu+eng
+   echo Converting to TXT in background...
+   tesseract $in $out -l deu+eng &
    read -p "Do you want to scan another page?. You can simply hit <Enter> to continue scanning. Or you can type 'y' for yes or 'n' for no." line
    if [ ${#line} -eq 0 ]; then 
       continue="y"
+      echo You have chosen yes
    else 
       continue=${line:0:1}
       continue="${continue,,}"
+      echo You have chosen no
    fi
 done
+
+echo
+echo Waiting for background processes...
+wait
+echo Waiting done
 
 txt=""
 png=""
