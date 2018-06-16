@@ -33,6 +33,7 @@ do
    echo Converting to TXT in background...
    tesseract $in $out -l deu+eng &
    read -p "Do you want to scan another page?. You can simply hit <Enter> to continue scanning. Or you can type 'y' for yes or 'n' for no." line
+   echo:
    if [ ${#line} -eq 0 ]; then 
       continue="y"
    else 
