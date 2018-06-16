@@ -18,7 +18,7 @@ scan="scan"
 output="output"
 
 echo "Welcome to the Scanner script"
-echo "Author: Peter Heide, pheide@t-onlinne.de"
+echo "Author: Peter Heide, pheide@t-online.de"
 read -p "Please type in the name of the scanned file you would like to choose: " name
 echo "The name is $name"
 
@@ -35,10 +35,13 @@ do
    read -p "Do you want to scan another page?. You can simply hit <Enter> to continue scanning. Or you can type 'y' for yes or 'n' for no." line
    if [ ${#line} -eq 0 ]; then 
       continue="y"
-      echo You have chosen yes
    else 
       continue=${line:0:1}
       continue="${continue,,}"
+   fi
+   if [ $continue == "y" ] then
+      echo You have chosen yes
+   else
       echo You have chosen no
    fi
 done
