@@ -39,7 +39,7 @@ do
       continue=${line:0:1}
       continue="${continue,,}"
    fi
-   if [ $continue == "y" ] then
+   if [ $continue == "y" ]; then
       echo You have chosen yes
    else
       echo You have chosen no
