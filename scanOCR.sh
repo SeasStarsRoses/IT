@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 ######################################################################################################################
 #                                                                                                                    #
@@ -13,9 +13,10 @@
 ######################################################################################################################
 
 continue="y"
-pages="0"
+page="0"
 scan="scan"
 output="output"
+tiffs=""
 
 echo "Welcome to the Scanner script"
 echo "Author: Peter Heide, pheide@t-online.de"
@@ -24,56 +25,41 @@ echo "The name is $name"
 
 while [ $continue == "y" ]  
 do
-   pages=$(( $pages + 1))	
-   out="$output$pages"
-   in="$scan$pages.png"
-   echo Scanning page $pages...
-   scanimage -x 210 -y 297 --mode Color --resolution 300 --format png > $in
+   page=$(( $page + 1))	
+   echo Scanning page $page...
+   in="$scan$page.tiff"
+   scanimage -x 210 -y 297 --mode Color --resolution 300 --format tiff > $in
    echo "Please put the next page on the scanner"
-   echo Converting to TXT in background...
-   tesseract $in $out -l deu+eng &
-   read -p "Do you want to scan another page?. You can simply hit <Enter> to continue scanning. Or you can type 'y' for yes or 'n' for no." line
    echo
+   read -p "Do you want to scan another page?. You can simply hit <Enter> to continue scanning. Or you can type 'y' for yes or 'n' for no." line
    if [ ${#line} -eq 0 ]; then 
       continue="y"
    else 
-      continue=${line:0:1}
-      continue="${continue,,}"
+      continue="n"
    fi
+   echo 
+   choice=""
    if [ $continue == "y" ]; then
-      echo You have chosen yes
+      choice="yes" 
    else
-      echo You have chosen no
+      choice="no" 
    fi
+   echo You have chosen $choice
+   tiffs="$tiffs $in"
 done
 
-echo
-echo Waiting for background processes...
-wait
-echo Waiting done
+echo "Executing: convert $tiffs $name.tiff"
+convert $tiffs $name.tiff
 
-txt=""
-png=""
+echo "Converting TIFF into searchable PDF"
+tesseract $name.tiff -l deu+eng "$name" pdf txt
 
-for (( page=1; page<=pages; page++ ))
-do
-  txt="$txt $output$page.txt"
-  png="$png $scan$page.png"
-done
-
-echo "Creating $name.txt..."
-cat $txt > $name.txt
-echo "Creating $name.pdf..."
-echo "Command: convert $png $name.pdf"
-convert $png $name.pdf
-
-echo removing intermediate files
-rm *.png
-for (( page=1; page<=pages; page++))
-do
-   rm $output$page.txt
-done
+echo Welcome to the converter PDF to PDF Archive 
+echo more info at https://unix.stackexchange.com/questions/79516/converting-pdf-to-pdf-a
+pdf_input=$name.pdf
+ps_output=${pdf_input%.*}.ps
+pdfa_output=${pdf_input%.*}_a.pdf
+pdftops $pdf_input $ps_output
+gs -dPDFA -dBATCH -dNOPAUSE -dNOOUTERSAVE -sProcessColorModel=DeviceCMYK -sDEVICE=pdfwrite -sPDFACompatibilityPolicy=1 -sOutputFile=$pdfa_output $ps_output
 
 echo "Finished scanning"
-
-
